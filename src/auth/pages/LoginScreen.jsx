@@ -28,6 +28,7 @@ function LoginScreen() {
               </Button>
             </Grid>
           </Grid>
+
           <Grid container direction="row" justifyContent="end">
             <Link component={RouterLink} color="inherit" to='/auth/register'>
               Create an account
