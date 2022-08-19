@@ -1,11 +1,8 @@
-function JournalApp() {
+import AppRouter from './router/AppRouter';
 
+function JournalApp() {
   return (
-    <div>
-      <p>
-        Hola mundito
-      </p>
-    </div>
+    <AppRouter />
   )
 }
 
