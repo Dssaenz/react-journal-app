@@ -1,11 +1,11 @@
-function JournalApp() {
+import AppTheme from './theme/AppTheme';
+import AppRouter from './router/AppRouter';
 
+function JournalApp() {
   return (
-    <div>
-      <p>
-        Hola mundito
-      </p>
-    </div>
+    <AppTheme>
+      <AppRouter />
+    </AppTheme>
   )
 }
 
