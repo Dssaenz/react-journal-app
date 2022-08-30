@@ -1,6 +1,7 @@
-import { useDispatch } from "react-redux";
+import { useMemo } from "react";
 import { Google } from "@mui/icons-material";
 import { Link as RouterLink } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { Grid, Typography, TextField, Button, Link } from "@mui/material";
 
 import useForm from "../../hooks/useForm";
@@ -12,6 +13,9 @@ import {
 
 function LoginScreen() {
   const dispatch = useDispatch();
+  const { status } = useSelector((state) => state.auth);
+
+  const isAuthenticated = useMemo(() => status === "checking", [status]);
 
   const { email, password, onInputChange } = useForm({
     email: "",
@@ -53,12 +57,22 @@ function LoginScreen() {
           </Grid>
           <Grid container spacing={2} sx={{ mb: 2, mt: 1 }}>
             <Grid item xs={12} sm={6}>
-              <Button type="submit" variant="contained" fullWidth>
+              <Button
+                fullWidth
+                type="submit"
+                variant="contained"
+                disabled={isAuthenticated}
+              >
                 Login
               </Button>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Button onClick={onGoogleSignIn} variant="contained" fullWidth>
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={onGoogleSignIn}
+                disabled={isAuthenticated}
+              >
                 <Google />
                 <Typography sx={{ ml: 1 }}>Google</Typography>
               </Button>
