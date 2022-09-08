@@ -1,10 +1,19 @@
+import { useState, useMemo } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { Grid, Typography, TextField, Button, Link } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Grid,
+  Typography,
+  TextField,
+  Button,
+  Link,
+  Alert,
+} from "@mui/material";
 
 import AuthLayout from "../layout/AuthLayout";
 
 import useForm from "../../hooks/useForm";
-import { useState } from "react";
+import { startRegisterWithEmailPassword } from "../../store/auth/thunks";
 
 const formData = {
   displayName: "",
@@ -22,7 +31,13 @@ const formValidation = {
 };
 
 function RegisterScreen() {
+  const dispatch = useDispatch();
+  const { status, errorMessage } = useSelector((state) => state.auth);
+
   const [formSubmitted, setFormSubmitted] = useState(false);
+
+  const isAuthenticated = useMemo(() => status === "checking", [status]);
+
   const {
     formState,
     isFormValid,
@@ -38,7 +53,10 @@ function RegisterScreen() {
   const onSubmit = (event) => {
     event.preventDefault();
     setFormSubmitted(true);
+
     if (!isFormValid) return;
+
+    dispatch(startRegisterWithEmailPassword(formState));
   };
 
   return (
@@ -85,8 +103,16 @@ function RegisterScreen() {
             />
           </Grid>
           <Grid container spacing={2} sx={{ mb: 2, mt: 1 }}>
+            <Grid item xs={12} sm={12} display={!!errorMessage ? "" : "none"}>
+              <Alert severity="error">{errorMessage}</Alert>
+            </Grid>
             <Grid item xs={12} sm={12}>
-              <Button type="submit" variant="contained" fullWidth>
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                disabled={isAuthenticated}
+              >
                 Create account
               </Button>
             </Grid>
