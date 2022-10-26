@@ -1,4 +1,10 @@
-import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 
 import { FirebaseAuth } from "./config";
 
@@ -7,7 +13,7 @@ const googleProvider = new GoogleAuthProvider();
 export const singInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(FirebaseAuth, googleProvider);
-    const {  displayName, photoURL, email, uid } = result.user;
+    const { displayName, photoURL, email, uid } = result.user;
     // const credentials = GoogleAuthProvider.credentialFromResult(result);
     return {
       ok: true,
@@ -16,21 +22,29 @@ export const singInWithGoogle = async () => {
       email,
       photoURL,
       displayName,
-    }
+    };
   } catch (error) {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      return {
-        ok: false,
-        errorMessage,
-        errorCode,
-      }
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    return {
+      ok: false,
+      errorMessage,
+      errorCode,
+    };
   }
-}
+};
 
-export const registerWithEmailAndPassword = async ({ email, password, displayName }) => {
+export const registerWithEmailAndPassword = async ({
+  email,
+  password,
+  displayName,
+}) => {
   try {
-    const resp = await createUserWithEmailAndPassword(FirebaseAuth, email, password);
+    const resp = await createUserWithEmailAndPassword(
+      FirebaseAuth,
+      email,
+      password
+    );
     const { uid, photoURL } = resp.user;
 
     await updateProfile(FirebaseAuth.currentUser, { displayName });
@@ -40,19 +54,23 @@ export const registerWithEmailAndPassword = async ({ email, password, displayNam
       // User info
       uid,
       photoURL,
-    }
+    };
   } catch (error) {
     const errorMessage = error.message;
     return {
       ok: false,
       errorMessage,
-    }
+    };
   }
-}
+};
 
 export const loginWithEmailAndPassword = async ({ email, password }) => {
   try {
-    const resp = await signInWithEmailAndPassword(FirebaseAuth, email, password);
+    const resp = await signInWithEmailAndPassword(
+      FirebaseAuth,
+      email,
+      password
+    );
     const { uid, displayName, photoURL } = resp.user;
     return {
       ok: true,
@@ -60,16 +78,16 @@ export const loginWithEmailAndPassword = async ({ email, password }) => {
       uid,
       photoURL,
       displayName,
-    }
+    };
   } catch (error) {
     const errorMessage = error.message;
     return {
       ok: false,
       errorMessage,
-    }
+    };
   }
-}
+};
 
 export const logoutFirebase = async () => {
   return await FirebaseAuth.signOut();
-}
+};
