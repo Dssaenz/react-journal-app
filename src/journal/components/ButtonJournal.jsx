@@ -1,7 +1,7 @@
 import { IconButton } from "@mui/material";
 import { AddOutlined } from "@mui/icons-material";
 
-const ButtonJournal = () => (
+const ButtonJournal = ({ disabled, onClick }) => (
   <IconButton
     size="large"
     sx={{
@@ -12,6 +12,8 @@ const ButtonJournal = () => (
       right: 50,
       bottom: 50,
     }}
+    disabled={disabled}
+    onClick={onClick}
   >
     <AddOutlined sx={{ fontSize: 30 }} />
   </IconButton>
