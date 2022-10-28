@@ -11,19 +11,34 @@ export const journalSlice = createSlice({
   reducers: {
     savingNewNote: (state) => {
       state.isSaving = true;
+      state.messageSaved = "";
     },
-    addEmptyNote: (state, action) => {
-      state.notes.push(action.payload);
+    addEmptyNote: (state, { payload }) => {
+      state.notes.push(payload);
       state.isSaving = false;
+      state.messageSaved = "";
     },
-    setActiveNote: (state, action) => {
-      state.active = action.payload;
+    setActiveNote: (state, { payload }) => {
+      state.active = payload;
+      state.addEmptyNote = "";
     },
-    setNotes: (state, action) => {
-      state.notes = action.payload;
+    setNotes: (state, { payload }) => {
+      state.notes = payload;
     },
-    setSaving: (state) => {},
-    updateNote: (state, action) => {},
+    setSaving: (state) => {
+      state.isSaving = true;
+      state.messageSaved = "";
+    },
+    updateNote: (state, { payload }) => {
+      state.isSaving = false;
+      state.notes = state.notes.map((note) => {
+        if (note.id === payload.id) {
+          return payload;
+        }
+        return note;
+      });
+      state.messageSaved = `${payload.title} was saved correcly`;
+    },
     deleteNoteById: (state, action) => {},
   },
 });
