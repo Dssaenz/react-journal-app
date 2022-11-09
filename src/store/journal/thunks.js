@@ -6,10 +6,13 @@ import {
   setActiveNote,
   setNotes,
   updateNote,
+  setSaving,
+  setPhotosToActiveNote,
 } from "./journalSlice";
 
 import { FirebaseDB } from "../../firebase/config";
 import { loadNotes } from "../../helpers/loadNotes";
+import { fileUpload } from "../../helpers/fileUpload";
 
 export const startNewNote = () => {
   return async (dispatch, getState) => {
@@ -56,5 +59,20 @@ export const startSaveNote = () => {
     await setDoc(docRef, noteToFirestore, { merge: true });
 
     dispatch(updateNote(note));
+  };
+};
+
+export const startUploadingFile = (files = []) => {
+  return async (dispatch) => {
+    dispatch(setSaving());
+
+    const fileUploadPromises = [];
+
+    for (const file of files) {
+      fileUploadPromises.push(fileUpload(file));
+    }
+    const photosUrls = await Promise.all(fileUploadPromises);
+
+    dispatch(setPhotosToActiveNote(photosUrls));
   };
 };

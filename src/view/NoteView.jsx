@@ -1,21 +1,22 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.css";
-import { SaveOutlined } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { Grid, Typography, Button, TextField } from "@mui/material";
+import { Notes, SaveOutlined, UploadOutlined } from "@mui/icons-material";
+import { Grid, Typography, Button, TextField, IconButton } from "@mui/material";
 
 import useForm from "../hooks/useForm";
 import { ImageGallery } from "../journal/components";
-import { startSaveNote } from "../store/journal/thunks";
 import { setActiveNote } from "../store/journal/journalSlice";
+import { startSaveNote, startUploadingFile } from "../store/journal/thunks";
 
 const NoteView = () => {
+  const fileInputRef = useRef();
   const dispatch = useDispatch();
   const {
+    isSaving,
     active: note,
     messageSaved,
-    isSaving,
   } = useSelector((state) => state.journal);
   const { title, body, date, formState, onInputChange } = useForm(note);
 
@@ -25,6 +26,11 @@ const NoteView = () => {
   }, [date]);
 
   const onSaveNote = () => dispatch(startSaveNote());
+
+  const onFileInputChange = ({ target }) => {
+    if (target.files === 0) return;
+    dispatch(startUploadingFile(target.files));
+  };
 
   useEffect(() => {
     dispatch(setActiveNote(formState));
@@ -50,6 +56,20 @@ const NoteView = () => {
         </Typography>
       </Grid>
       <Grid item>
+        <input
+          multiple
+          type="file"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={onFileInputChange}
+        />
+        <IconButton
+          color="primary"
+          disabled={isSaving}
+          onClick={() => fileInputRef.current.click()}
+        >
+          <UploadOutlined />
+        </IconButton>
         <Button
           color="primary"
           sx={{ padding: 2 }}
@@ -85,7 +105,7 @@ const NoteView = () => {
           onChange={onInputChange}
         />
       </Grid>
-      <ImageGallery />
+      <ImageGallery images={note.imageUrls} />
     </Grid>
   );
 };
