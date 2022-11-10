@@ -1,48 +1,129 @@
-import { SaveOutlined } from "@mui/icons-material";
-import { Grid, Typography, Button, TextField } from "@mui/material";
+import { useEffect, useMemo, useRef } from "react";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.css";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  DeleteOutline,
+  SaveOutlined,
+  UploadOutlined,
+} from "@mui/icons-material";
+import { Grid, Typography, Button, TextField, IconButton } from "@mui/material";
 
+import useForm from "../hooks/useForm";
 import { ImageGallery } from "../journal/components";
+import { setActiveNote } from "../store/journal/journalSlice";
+import {
+  startSaveNote,
+  startDeletingNote,
+  startUploadingFile,
+} from "../store/journal/thunks";
 
-const NoteView = () => (
-  <Grid
-    container
-    direction="row"
-    justifyContent="space-between"
-    alignItems="center"
-    sx={{ mb: 1 }}
-  >
-    <Grid item>
-      <Typography fontSize={39} fontWeight="light">
-        28 de agosto, 2023
-      </Typography>
-    </Grid>
-    <Grid item>
-      <Button color="primary" sx={{ padding: 2 }}>
-        <SaveOutlined sx={{ fontSize: 30, mr: 1 }} />
-        Save
-      </Button>
-    </Grid>
-    <Grid container>
-      <TextField
-        fullWidth
-        type="text"
-        label="Title"
-        variant="filled"
-        placeholder="Type the title"
-        sx={{ border: "none", mb: 1 }}
-      />
+const NoteView = () => {
+  const fileInputRef = useRef();
+  const dispatch = useDispatch();
+  const {
+    isSaving,
+    active: note,
+    messageSaved,
+  } = useSelector((state) => state.journal);
+  const { title, body, date, formState, onInputChange } = useForm(note);
 
-      <TextField
-        fullWidth
-        multiline
-        minRows={5}
-        type="text"
-        variant="filled"
-        placeholder="What happened today?"
-      />
+  const dateString = useMemo(() => {
+    const newDate = new Date(date);
+    return newDate.toUTCString();
+  }, [date]);
+
+  const onSaveNote = () => dispatch(startSaveNote());
+
+  const onDelete = () => dispatch(startDeletingNote());
+
+  const onFileInputChange = ({ target }) => {
+    if (target.files === 0) return;
+    dispatch(startUploadingFile(target.files));
+  };
+
+  useEffect(() => {
+    dispatch(setActiveNote(formState));
+  }, [formState]);
+
+  useEffect(() => {
+    if (messageSaved.length > 0) {
+      Swal.fire("Updated note", messageSaved, "success");
+    }
+  }, [messageSaved]);
+
+  return (
+    <Grid
+      container
+      direction="row"
+      justifyContent="space-between"
+      alignItems="center"
+      sx={{ mb: 1 }}
+    >
+      <Grid item>
+        <Typography fontSize={39} fontWeight="light">
+          {dateString}
+        </Typography>
+      </Grid>
+      <Grid item>
+        <input
+          multiple
+          type="file"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={onFileInputChange}
+        />
+        <IconButton
+          color="primary"
+          disabled={isSaving}
+          onClick={() => fileInputRef.current.click()}
+        >
+          <UploadOutlined />
+        </IconButton>
+        <Button
+          color="primary"
+          sx={{ padding: 2 }}
+          disabled={isSaving}
+          onClick={onSaveNote}
+        >
+          <SaveOutlined sx={{ fontSize: 30, mr: 1 }} />
+          Save
+        </Button>
+      </Grid>
+      <Grid container>
+        <TextField
+          fullWidth
+          type="text"
+          label="Title"
+          variant="filled"
+          placeholder="Type the title"
+          name="title"
+          value={title}
+          sx={{ border: "none", mb: 1 }}
+          onChange={onInputChange}
+        />
+
+        <TextField
+          fullWidth
+          multiline
+          minRows={5}
+          type="text"
+          name="body"
+          value={body}
+          variant="filled"
+          placeholder="What happened today?"
+          onChange={onInputChange}
+        />
+      </Grid>
+      <Grid container justifyContent="end">
+        <Button onClick={onDelete} sx={{ mt: 2 }} color="error">
+          <DeleteOutline />
+          Delete
+        </Button>
+      </Grid>
+      {note.imageUrls.length !== 0 && <ImageGallery images={note.imageUrls} />}
     </Grid>
-    <ImageGallery />
-  </Grid>
-);
+  );
+};
 
 export default NoteView;
